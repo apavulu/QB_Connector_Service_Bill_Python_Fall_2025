@@ -2,10 +2,9 @@ from pathlib import Path
 from excel_reader import read_excel_data
 from comparer import compare_bills
 from reporting import save_comparison_report
-from models import ComparisonReport, BillRecord
 from qb_gateway import fetch_bills_from_qb, add_bill_to_qb
 
-excel_file = Path("C:/Users/PavuluriA/Quickbook Services Bill/QB_Connector_Service_Bill_Python_Fall_2025/company_data.xlsx")
+excel_file = Path(__file__).resolve().parent.parent / "company_data.xlsx"
 report_path = Path("comparison_report.json")
 
 # Step 1: Read Excel
@@ -22,7 +21,9 @@ print("Comparison completed.")
 
 # Step 4: Batch add Excel-only bills to QB
 if comparison_report.excel_only:
-    print(f"Adding {len(comparison_report.excel_only)} Excel-only bills to QuickBooks...")
+    print(
+        f"Adding {len(comparison_report.excel_only)} Excel-only bills to QuickBooks..."
+    )
     add_bill_to_qb(comparison_report.excel_only)
     for bill in comparison_report.excel_only:
         bill.added_to_qb = True

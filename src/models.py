@@ -4,12 +4,13 @@ from __future__ import annotations
 from dataclasses import dataclass, asdict, field
 from typing import List, Literal, Optional
 import json
-from datetime import datetime,date
+from datetime import datetime, date
 
 
 # TYPE DEFINITIONS
 SourceLiteral = Literal["excel", "quickbooks"]
 ConflictReason = Literal["missing_in_excel", "missing_in_quickbooks", "data_mismatch"]
+
 
 @dataclass
 class BillRecord:
@@ -34,7 +35,7 @@ class BillRecord:
             f"bank_date={date_str}, chart_account={self.chart_account}, "
             f"amount={self.amount}, memo={self.memo}, line_memo={self.line_memo}, "
             f"source={self.source}, added_to_qb={self.added_to_qb})"
-    )
+        )
 
 
 @dataclass
@@ -48,7 +49,7 @@ class Conflict:
 @dataclass
 class ComparisonReport:
     """Contains the full comparison results between Excel and QuickBooks data."""
-    
+
     excel_only: List[BillRecord] = field(default_factory=list)
     qb_only: List[BillRecord] = field(default_factory=list)
     conflicts: List[Conflict] = field(default_factory=list)

@@ -1,33 +1,93 @@
 {
-    "conflicts": [
+    "conflicts": [],
+    "excel_only": [
+        {
+            "record_id": "46034",
+            "supplier": "A",
+            "bank_date": "2024-12-16 00:00:00",
+            "chart_account": "Inventory",
+            "amount": 10.0,
+            "memo": "46034",
+            "line_memo": "123",
+            "source": "excel",
+            "added_to_qb": true
+        },
         {
             "record_id": "45104",
-            "excel_name": "Amount: 479.5, CoA: Inventory, LineMemo: ",
-            "qb_name": "Amount: 132.65, CoA: Inventory, LineMemo: 45226",
-            "reason": "data_mismatch"
+            "supplier": "B",
+            "bank_date": "2024-04-25 00:00:00",
+            "chart_account": "Inventory",
+            "amount": 479.5,
+            "memo": "45104",
+            "line_memo": "",
+            "source": "excel",
+            "added_to_qb": true
+        },
+        {
+            "record_id": "46242",
+            "supplier": "C",
+            "bank_date": "2025-01-13 00:00:00",
+            "chart_account": "Shareholder Distributions",
+            "amount": 1953.81,
+            "memo": "46242",
+            "line_memo": "46335",
+            "source": "excel",
+            "added_to_qb": true
+        },
+        {
+            "record_id": "44139",
+            "supplier": "C",
+            "bank_date": "2024-01-02 00:00:00",
+            "chart_account": "Shareholder Distributions",
+            "amount": 1017.23,
+            "memo": "44139",
+            "line_memo": "44611",
+            "source": "excel",
+            "added_to_qb": true
+        },
+        {
+            "record_id": "44151",
+            "supplier": "C",
+            "bank_date": "2024-01-10 00:00:00",
+            "chart_account": "Shareholder Distributions",
+            "amount": 5120.73,
+            "memo": "44151",
+            "line_memo": "44458",
+            "source": "excel",
+            "added_to_qb": true
+        },
+        {
+            "record_id": "1234",
+            "supplier": "A",
+            "bank_date": "2024-02-13 00:00:00",
+            "chart_account": "Inventory",
+            "amount": 5000.0,
+            "memo": "1234",
+            "line_memo": "123",
+            "source": "excel",
+            "added_to_qb": true
         }
     ],
-    "excel_only": [],
     "qb_only": [
         {
-            "record_id": "233",
-            "supplier": "test",
-            "bank_date": "2024-01-13",
-            "chart_account": "Shareholder Distributions",
-            "amount": 1008.0,
-            "memo": "233",
-            "line_memo": "2333",
+            "record_id": "001",
+            "supplier": "C",
+            "bank_date": "2024-10-05",
+            "chart_account": "Utilities",
+            "amount": 5000.0,
+            "memo": "001",
+            "line_memo": "123",
             "source": "quickbooks",
             "added_to_qb": false
         },
         {
-            "record_id": "0002",
+            "record_id": "B002",
             "supplier": "B",
-            "bank_date": "2024-04-25",
-            "chart_account": "Inventory",
-            "amount": 479.5,
-            "memo": "0002",
-            "line_memo": "",
+            "bank_date": "2025-11-03",
+            "chart_account": "Utilities",
+            "amount": 80.0,
+            "memo": "B002",
+            "line_memo": "B012",
             "source": "quickbooks",
             "added_to_qb": false
         }

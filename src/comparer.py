@@ -1,8 +1,10 @@
-
 from typing import List
 from models import BillRecord, ComparisonReport, Conflict
 
-def compare_bills(excel_bills: List[BillRecord], qb_bills: List[BillRecord]) -> ComparisonReport:
+
+def compare_bills(
+    excel_bills: List[BillRecord], qb_bills: List[BillRecord]
+) -> ComparisonReport:
     """
     Compare Excel and QuickBooks bills.
 
@@ -29,21 +31,19 @@ def compare_bills(excel_bills: List[BillRecord], qb_bills: List[BillRecord]) -> 
         qb_bill = qb_by_id[rid]
 
         # Compare key fields: amount, chart_account, line_memo
-        if (excel_bill.amount != qb_bill.amount or
-            excel_bill.chart_account != qb_bill.chart_account or
-            excel_bill.line_memo != qb_bill.line_memo):
+        if (
+            excel_bill.amount != qb_bill.amount
+            or excel_bill.chart_account != qb_bill.chart_account
+            or excel_bill.line_memo != qb_bill.line_memo
+        ):
             conflicts.append(
                 Conflict(
                     record_id=rid,
                     excel_name=f"Amount: {excel_bill.amount}, CoA: {excel_bill.chart_account}, LineMemo: {excel_bill.line_memo}",
                     qb_name=f"Amount: {qb_bill.amount}, CoA: {qb_bill.chart_account}, LineMemo: {qb_bill.line_memo}",
-                    reason="data_mismatch"
+                    reason="data_mismatch",
                 )
             )
 
     # Return a ComparisonReport
-    return ComparisonReport(
-        excel_only=excel_only,
-        qb_only=qb_only,
-        conflicts=conflicts
-    )
+    return ComparisonReport(excel_only=excel_only, qb_only=qb_only, conflicts=conflicts)

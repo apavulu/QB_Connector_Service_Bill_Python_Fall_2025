@@ -4,7 +4,6 @@ from models import BillRecord
 from datetime import datetime
 
 
-
 def _escape_xml(value: str) -> str:
     """Escape XML special characters for QBXML requests."""
     return (
@@ -76,7 +75,7 @@ def fetch_bills_from_qb() -> list[BillRecord]:
         for line in bill_ret.findall(".//ExpenseLineRet"):
             bills.append(
                 BillRecord(
-                    record_id=parent_id,        # Parent ID
+                    record_id=parent_id,  # Parent ID
                     supplier=supplier,
                     bank_date=txn_date,
                     memo=memo,
@@ -90,7 +89,7 @@ def fetch_bills_from_qb() -> list[BillRecord]:
     return bills
 
 
-def add_bill_to_qb(bills):
+def add_bill_to_qb(bills: BillRecord | list[BillRecord]) -> list[BillRecord]:
     """
     Add one or multiple BillRecord(s) from Excel to QuickBooks.
     Supports batch addition.
@@ -98,7 +97,7 @@ def add_bill_to_qb(bills):
     if not isinstance(bills, list):
         bills = [bills]  # wrap single bill in a list
 
-    qbxml_bodies = []
+    qbxml_batch = []
 
     for bill in bills:
         if not bill.supplier:
@@ -128,7 +127,7 @@ def add_bill_to_qb(bills):
                 "        </ExpenseLineAdd>\n"
             )
 
-        qbxml_bodies.append(
+        qbxml_batch.append(
             "      <BillAddRq>\n"
             "        <BillAdd>\n"
             f"          <VendorRef><FullName>{_escape_xml(bill.supplier)}</FullName></VendorRef>\n"
@@ -139,18 +138,18 @@ def add_bill_to_qb(bills):
             "      </BillAddRq>\n"
         )
 
-    if not qbxml_bodies:
+    if not qbxml_batch:
         print("No valid bills to add.")
-        return
+        return bills
 
-    # Wrap all BillAddRq in a single QBXML request
+    # Wrapping all BillAddRq in a single QBXML request
     qbxml = (
         '<?xml version="1.0" encoding="utf-8"?>\n'
         '<?qbxml version="16.0"?>\n'
         "<QBXML>\n"
         "  <QBXMLMsgsRq onError='stopOnError'>\n"
-        + "".join(qbxml_bodies) +
-        "  </QBXMLMsgsRq>\n"
+        + "".join(qbxml_batch)
+        + "  </QBXMLMsgsRq>\n"
         "</QBXML>"
     )
 
@@ -168,7 +167,6 @@ def add_bill_to_qb(bills):
     return bills
 
 
-
 if __name__ == "__main__":
     # --- Step 1: Fetch bills from QuickBooks (for demonstration) ---
     try:
@@ -179,3 +177,47 @@ if __name__ == "__main__":
             print(bill)  # Uses BillRecord.__str__()
     except Exception as e:
         print(f"Error fetching bills from QuickBooks: {e}")
+
+# testing main guard code for QB adding
+
+# from datetime import datetime
+# from models import BillRecord
+# from qb_gateway import add_bill_to_qb  # import your updated function
+
+# def test_add_bill_to_qb_batch():
+#     # Mock bills for testing
+#     bills = [
+#         BillRecord(
+#             record_id="001",
+#             supplier="C",
+#             amount=5000.00,
+#             bank_date=datetime(2024, 10, 5),
+#             chart_account="Utilities",
+#             memo="001",
+#             line_memo="123"
+#         ),
+#         BillRecord(
+#             record_id="B002",
+#             supplier="B",  # Missing supplier should be skipped
+#             amount=80.00,
+#             bank_date=datetime(2025, 11, 3),
+#             chart_account="Utilities",
+#             memo="B002",
+#             line_memo="B012"
+#         ),
+#         BillRecord(
+#             record_id="003",
+#             supplier="C",
+#             amount=-45.00,  # Invalid amount, should be skipped
+#             bank_date=datetime(2025, 11, 3),
+#             chart_account="Groceries",
+#             memo="003",
+#             line_memo=""
+#         ),
+#     ]
+
+#     result = add_bill_to_qb(bills)
+
+
+# if __name__ == "__main__":
+#     test_add_bill_to_qb_batch()

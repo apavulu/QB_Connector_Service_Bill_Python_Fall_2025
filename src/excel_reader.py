@@ -3,7 +3,7 @@ from models import BillRecord
 from pathlib import Path
 
 
-def read_excel_data(file_path: Path ) -> list[BillRecord]:
+def read_excel_data(file_path: Path) -> list[BillRecord]:
     """Read and parse Excel data dynamically based on column headers."""
     workbook = load_workbook(filename=file_path, data_only=True)
     sheet = workbook.active
@@ -35,7 +35,7 @@ def read_excel_data(file_path: Path ) -> list[BillRecord]:
 
         try:
             parent_id = str(row[header_index.get("Parent ID", "")] or "").strip()
-            child_id = str(row[header_index.get("Child ID", "")] or "").strip()
+            # child_id = str(row[header_index.get("Child ID", "")] or "").strip()
             supplier = str(row[header_index.get("Supplier", "")] or "").strip()
             memo = str(row[header_index.get("Parent ID", "")] or "").strip()
             line_memo = str(row[header_index.get("Child ID", "")] or "").strip()
@@ -81,8 +81,8 @@ def read_excel_data(file_path: Path ) -> list[BillRecord]:
     return bills
 
 
-if __name__ == "__main__":
-    file_path = "C:\\Users\\PavuluriA\\Quickbook Services Bill\\QB_Connector_Service_Bill_Python_Fall_2025\\company_data.xlsx" 
-    records = read_excel_data(file_path)
-    for record in records:
-        print(record)
+# if __name__ == "__main__":
+#     file_path = "company_data.xlsx"
+#     records = read_excel_data(Path(file_path))
+#     for record in records:
+#         print(record)
