@@ -30,7 +30,8 @@ poetry run python -m src.cli --workbook company_data.xlsx
 ```
 Build Exe
 ```bash
-poetry run pyinstaller --onefile --name Service_bill_cli --hidden-import win32timezone --hidden-import win32com.client build_exe.py
+poetry run pyinstaller --onefile --name Service_bill_cli --hidden-import win32timezone --hidden-import win32com.client src/cli.py
+
 ```
 Run Exe
 ```bash
