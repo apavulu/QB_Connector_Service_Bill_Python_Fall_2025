@@ -34,7 +34,7 @@ def _parse_response(raw_xml: str) -> ET.Element:
 
 def _send_qbxml(qbxml: str) -> ET.Element:
     """Send QBXML to QuickBooks and return parsed response."""
-    APP_NAME = "QB Connector Service Bill Python Fall 2025"
+    APP_NAME = "Quickbooks Connector"
 
     session = win32com.client.Dispatch("QBXMLRP2.RequestProcessor")
     session.OpenConnection2("", APP_NAME, 1)
