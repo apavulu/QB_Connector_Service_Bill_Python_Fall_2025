@@ -1,7 +1,7 @@
 import win32com.client
 import xml.etree.ElementTree as ET
-from models import BillRecord
 from datetime import datetime
+from src.models import BillRecord
 
 
 def _escape_xml(value: str) -> str:
@@ -19,22 +19,27 @@ def _parse_response(raw_xml: str) -> ET.Element:
     """Parse QBXML response and validate status."""
     root = ET.fromstring(raw_xml)
     response = root.find(".//*[@statusCode]")
+
     if response is None:
         raise RuntimeError("QuickBooks response missing status information")
 
     status_code = int(response.get("statusCode", "0"))
     status_message = response.get("statusMessage", "")
-    if status_code not in (0, 1):
+
+    if status_code not in (0, 1):  # 0 = success, 1 = warning
         raise RuntimeError(f"QuickBooks error ({status_code}): {status_message}")
+
     return root
 
 
 def _send_qbxml(qbxml: str) -> ET.Element:
     """Send QBXML to QuickBooks and return parsed response."""
     APP_NAME = "QB Connector Service Bill Python Fall 2025"
+
     session = win32com.client.Dispatch("QBXMLRP2.RequestProcessor")
     session.OpenConnection2("", APP_NAME, 1)
     ticket = session.BeginSession("", 0)
+
     try:
         raw_response = session.ProcessRequest(ticket, qbxml)
         return _parse_response(raw_response)
@@ -58,24 +63,25 @@ def fetch_bills_from_qb() -> list[BillRecord]:
     root = _send_qbxml(qbxml)
     bills: list[BillRecord] = []
 
-    # Loop over each bill returned by QuickBooks
     for bill_ret in root.findall(".//BillRet"):
         parent_id = bill_ret.findtext("Memo") or ""
         supplier = bill_ret.findtext("VendorRef/FullName") or ""
+
         txn_date_str = bill_ret.findtext("TxnDate") or ""
         txn_date = None
         if txn_date_str:
             try:
                 txn_date = datetime.strptime(txn_date_str, "%Y-%m-%d").date()
             except ValueError:
-                pass  # leave as None if date parsing fails
+                pass
+
         memo = bill_ret.findtext("Memo") or ""
 
-        # Loop over expense lines inside this bill
+        # Loop over bill line items
         for line in bill_ret.findall(".//ExpenseLineRet"):
             bills.append(
                 BillRecord(
-                    record_id=parent_id,  # Parent ID
+                    record_id=parent_id,
                     supplier=supplier,
                     bank_date=txn_date,
                     memo=memo,
@@ -90,12 +96,9 @@ def fetch_bills_from_qb() -> list[BillRecord]:
 
 
 def add_bill_to_qb(bills: BillRecord | list[BillRecord]) -> list[BillRecord]:
-    """
-    Add one or multiple BillRecord(s) from Excel to QuickBooks.
-    Supports batch addition.
-    """
+    """Add one or multiple BillRecord(s) from Excel to QuickBooks."""
     if not isinstance(bills, list):
-        bills = [bills]  # wrap single bill in a list
+        bills = [bills]
 
     qbxml_batch = []
 
@@ -103,6 +106,7 @@ def add_bill_to_qb(bills: BillRecord | list[BillRecord]) -> list[BillRecord]:
         if not bill.supplier:
             print(f"Skipping bill {bill.record_id}: missing supplier.")
             continue
+
         if not bill.amount or bill.amount <= 0:
             print(f"Skipping bill {bill.record_id}: invalid amount {bill.amount}.")
             continue
@@ -142,7 +146,6 @@ def add_bill_to_qb(bills: BillRecord | list[BillRecord]) -> list[BillRecord]:
         print("No valid bills to add.")
         return bills
 
-    # Wrapping all BillAddRq in a single QBXML request
     qbxml = (
         '<?xml version="1.0" encoding="utf-8"?>\n'
         '<?qbxml version="16.0"?>\n'
@@ -157,7 +160,8 @@ def add_bill_to_qb(bills: BillRecord | list[BillRecord]) -> list[BillRecord]:
         _send_qbxml(qbxml)
         for bill in bills:
             bill.added_to_qb = True
-            print(f" Successfully added bill to QuickBooks: {bill.record_id}")
+            print(f"Successfully added bill to QuickBooks: {bill.record_id}")
+
     except Exception as e:
         print(f"Failed to add bills: {e}")
         print("QBXML sent:\n", qbxml)
@@ -165,59 +169,3 @@ def add_bill_to_qb(bills: BillRecord | list[BillRecord]) -> list[BillRecord]:
             bill.added_to_qb = False
 
     return bills
-
-
-if __name__ == "__main__":
-    # --- Step 1: Fetch bills from QuickBooks (for demonstration) ---
-    try:
-        bills = fetch_bills_from_qb()
-        print(f"\nFetched {len(bills)} bills from QuickBooks:\n")
-
-        for bill in bills:
-            print(bill)  # Uses BillRecord.__str__()
-    except Exception as e:
-        print(f"Error fetching bills from QuickBooks: {e}")
-
-# testing main guard code for QB adding
-
-# from datetime import datetime
-# from models import BillRecord
-# from qb_gateway import add_bill_to_qb  # import your updated function
-
-# def test_add_bill_to_qb_batch():
-#     # Mock bills for testing
-#     bills = [
-#         BillRecord(
-#             record_id="001",
-#             supplier="C",
-#             amount=5000.00,
-#             bank_date=datetime(2024, 10, 5),
-#             chart_account="Utilities",
-#             memo="001",
-#             line_memo="123"
-#         ),
-#         BillRecord(
-#             record_id="B002",
-#             supplier="B",  # Missing supplier should be skipped
-#             amount=80.00,
-#             bank_date=datetime(2025, 11, 3),
-#             chart_account="Utilities",
-#             memo="B002",
-#             line_memo="B012"
-#         ),
-#         BillRecord(
-#             record_id="003",
-#             supplier="C",
-#             amount=-45.00,  # Invalid amount, should be skipped
-#             bank_date=datetime(2025, 11, 3),
-#             chart_account="Groceries",
-#             memo="003",
-#             line_memo=""
-#         ),
-#     ]
-
-#     result = add_bill_to_qb(bills)
-
-
-# if __name__ == "__main__":
-#     test_add_bill_to_qb_batch()

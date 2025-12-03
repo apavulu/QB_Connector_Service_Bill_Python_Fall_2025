@@ -16,7 +16,7 @@ ConflictReason = Literal["missing_in_excel", "missing_in_quickbooks", "data_mism
 class BillRecord:
     record_id: str
     supplier: Optional[str] = None
-    bank_date: Optional[datetime] = None
+    bank_date: Optional[date] = None
     chart_account: Optional[str] = None
     amount: Optional[float] = None
     memo: Optional[str] = None
@@ -41,9 +41,15 @@ class BillRecord:
 @dataclass
 class Conflict:
     record_id: str
-    excel_name: Optional[str]
-    qb_name: Optional[str]
     reason: str
+
+    # full structured bill data
+    excel_bill: Optional[BillRecord] = None
+    qb_bill: Optional[BillRecord] = None
+
+    # legacy string fields (optional)
+    excel_name: Optional[str] = None
+    qb_name: Optional[str] = None
 
 
 @dataclass
